@@ -212,8 +212,23 @@ async function toggleApiStatus() {
             els.statusDot.className = 'status-dot offline';
             els.statusText.className = 'status-text offline';
             els.statusText.textContent = '🔌 API Desligada';
+            els.rustHours.textContent = '--';
+            els.rustDate.textContent = 'Dados reiniciados';
             els.responseTime.textContent = 'Off';
             els.responseTime.style.color = '#ffcc00';
+            els.lastPing.textContent = 'Nenhum ping';
+            els.timeSinceLastPing.textContent = 'desligada';
+            els.pingCount.textContent = '0';
+            els.checks.textContent = '0';
+            els.uptime.textContent = '0s';
+            els.monitorBadge.className = 'live-badge inactive';
+            els.monitorBadge.innerHTML = '<span class="live-pulse"></span>MONITOR INATIVO';
+            pingCount = 0;
+            checkCount = 0;
+            lastPingTime = 0;
+            localStorage.setItem('rust_pingCount', '0');
+            localStorage.setItem('rust_checkCount', '0');
+            localStorage.setItem('rust_lastPing', '0');
         } else {
             checkStatus();
         }
