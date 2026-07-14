@@ -56,7 +56,7 @@ def api_status():
             'online': False,
             'enabled': False,
             'error': 'API desligada manualmente.'
-        })
+        }), 503
 
     now = datetime.now(timezone(timedelta(hours=-3)))
     accept_header = request.headers.get('Accept', '')
@@ -114,6 +114,9 @@ def api_status():
 @app.route('/rust-hours')
 def get_rust_hours():
     """Endpoint para o StreamElements"""
+    if not api_enabled:
+        return "API desligada manualmente.", 503
+
     try:
         url = f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={STEAM_API_KEY}&steamid={STEAM_ID}&include_appinfo=true&format=json"
 

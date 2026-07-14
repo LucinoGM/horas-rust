@@ -24,11 +24,19 @@ class ApiToggleTests(unittest.TestCase):
 
         response = self.client.get('/api/status')
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 503)
         data = response.get_json()
         self.assertFalse(data['online'])
         self.assertFalse(data['enabled'])
         self.assertIn('desligada', data['error'].lower())
+
+    def test_rust_hours_endpoint_is_disabled_when_api_is_off(self):
+        self.client.post('/api/toggle-status')
+
+        response = self.client.get('/rust-hours')
+
+        self.assertEqual(response.status_code, 503)
+        self.assertIn('desligada', response.get_data(as_text=True).lower())
 
 
 if __name__ == '__main__':
