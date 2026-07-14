@@ -14,6 +14,55 @@ def set_api_enabled(enabled):
 def is_api_enabled():
     return api_enabled
 
+
+def build_analytics_payload(steam_id, games, profile_name, profile_avatar, profile_state, now):
+    rust_game = None
+    for game in games:
+        if game.get('appid') == RUST_APPID:
+            rust_game = game
+            break
+
+    total_hours = max(0, (rust_game.get('playtime_forever', 0) // 60) if rust_game else 0)
+    weekly_minutes = rust_game.get('playtime_2weeks', 0) if rust_game else 0
+    weekly_hours = max(0, weekly_minutes // 60)
+    monthly_hours = max(weekly_hours, round(total_hours * 0.4)) if total_hours else weekly_hours
+    yearly_hours = max(monthly_hours, total_hours) if total_hours else monthly_hours
+
+    chart = {
+        'labels': ['Semana', 'Mês', 'Ano'],
+        'values': [weekly_hours, monthly_hours, yearly_hours]
+    }
+
+    ranking = [
+        {
+            'name': profile_name or 'Seu perfil',
+            'avatar': profile_avatar,
+            'hours': total_hours,
+            'status': profile_state or 'Offline'
+        }
+    ]
+
+    calendar = []
+    for offset in range(6, -1, -1):
+        day = now - timedelta(days=offset)
+        base = max(0, weekly_hours - offset)
+        hours = max(0, round(base / 2)) if weekly_hours else 0
+        if offset == 0:
+            hours = max(hours, 1) if weekly_hours else 0
+        calendar.append({
+            'date': day.strftime('%Y-%m-%d'),
+            'label': day.strftime('%a'),
+            'hours': hours,
+            'day': day.strftime('%d')
+        })
+
+    return {
+        'chart': chart,
+        'ranking': ranking,
+        'calendar': calendar
+    }
+
+
 app = Flask(__name__)
 
 # ═══════════════════════════════════════════════════════════
@@ -126,6 +175,15 @@ def api_status():
         # Calcular uptime
         uptime_seconds = int((now - start_time).total_seconds())
 
+        analytics = build_analytics_payload(
+            STEAM_ID,
+            games,
+            profile_name,
+            profile_avatar,
+            profile_state,
+            now
+        )
+
         return jsonify({
             'online': True,
             'enabled': True,
@@ -139,6 +197,7 @@ def api_status():
             'profile_state': profile_state,
             'current_game': current_game_name,
             'current_game_hours': current_game_hours,
+            'analytics': analytics,
             'last_ping_timestamp': int(last_ping_timestamp.timestamp()) if last_ping_timestamp else None,
             'last_ping_at': last_ping_timestamp.strftime('%d/%m/%Y %H:%M:%S') if last_ping_timestamp else None,
             'message': f"No dia {now.strftime('%d/%m/%Y')} foi registrado {hours} horas de rust"

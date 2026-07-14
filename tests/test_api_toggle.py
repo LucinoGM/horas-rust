@@ -4,6 +4,14 @@ from unittest.mock import patch
 from rust_hours_server import app, set_api_enabled
 
 
+class FakeResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def json(self):
+        return self._payload
+
+
 class ApiToggleTests(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
@@ -37,6 +45,20 @@ class ApiToggleTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertIn('desligada', response.get_data(as_text=True).lower())
+
+    def test_status_endpoint_includes_analytics_payload(self):
+        with patch('rust_hours_server.requests.get', side_effect=[
+            FakeResponse({'response': {'games': [{'appid': 252490, 'playtime_forever': 6000, 'name': 'Rust'}]}}),
+            FakeResponse({'response': {'players': [{'personaname': 'Tester', 'avatarfull': 'http://avatar', 'personastate': 1, 'gameextrainfo': 'Rust', 'gameid': '252490'}]}})
+        ]):
+            response = self.client.get('/api/status')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn('analytics', data)
+        self.assertIn('chart', data['analytics'])
+        self.assertIn('ranking', data['analytics'])
+        self.assertIn('calendar', data['analytics'])
 
 
 if __name__ == '__main__':

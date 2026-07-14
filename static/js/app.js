@@ -87,6 +87,52 @@ function updateProgress() {
     }
 }
 
+function renderAnalytics(analytics) {
+    const chart = document.getElementById('hoursChart');
+    const rankingList = document.getElementById('rankingList');
+    const calendarGrid = document.getElementById('calendarGrid');
+
+    if (chart && analytics?.chart) {
+        const maxValue = Math.max(...analytics.chart.values, 1);
+        chart.innerHTML = analytics.chart.labels.map((label, index) => {
+            const value = analytics.chart.values[index] || 0;
+            const percentage = Math.max(8, (value / maxValue) * 100);
+            return `
+                <div class="chart-bar-group">
+                    <div class="chart-bar-track">
+                        <div class="chart-bar" style="height: ${percentage}%"></div>
+                    </div>
+                    <div class="chart-label">${label}</div>
+                    <div class="chart-value">${value}h</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    if (rankingList && analytics?.ranking) {
+        rankingList.innerHTML = analytics.ranking.map((entry, index) => `
+            <li class="ranking-item">
+                <span class="ranking-rank">#${index + 1}</span>
+                <div class="ranking-avatar" style="background-image: url('${entry.avatar || 'https://via.placeholder.com/48?text=STEAM'}')"></div>
+                <div class="ranking-info">
+                    <strong>${entry.name}</strong>
+                    <span>${entry.hours}h · ${entry.status}</span>
+                </div>
+            </li>
+        `).join('');
+    }
+
+    if (calendarGrid && analytics?.calendar) {
+        calendarGrid.innerHTML = analytics.calendar.map((day) => `
+            <div class="calendar-day">
+                <div class="calendar-label">${day.label}</div>
+                <div class="calendar-number">${day.day}</div>
+                <div class="calendar-hours">${day.hours}h</div>
+            </div>
+        `).join('');
+    }
+}
+
 // ═══════════════════════════════════════════════
 // VERIFICAR STATUS
 // ═══════════════════════════════════════════════
@@ -159,6 +205,10 @@ async function checkStatus() {
                 } else {
                     els.currentGame.textContent = data.profile_state ? `${data.profile_state}` : 'Offline';
                     els.currentGameTime.textContent = data.profile_state === 'Online' ? 'Não está jogando nenhum jogo' : 'Offline no Steam';
+                }
+
+                if (data.analytics) {
+                    renderAnalytics(data.analytics);
                 }
 
                 // Atualizar último ping
