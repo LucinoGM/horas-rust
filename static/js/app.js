@@ -91,6 +91,11 @@ async function checkStatus() {
     els.statusText.textContent = 'Verificando...';
     els.responseTime.textContent = '--';
 
+    // Não marcar como offline só porque a página fez um refresh automático
+    if (lastPingTime) {
+        els.lastPing.textContent = formatTimeAgo(lastPingTime);
+    }
+
     const start = performance.now();
 
     try {
@@ -128,7 +133,7 @@ async function checkStatus() {
                     lastPingTime = Date.now();
                 }
                 localStorage.setItem('rust_lastPing', lastPingTime);
-                els.lastPing.textContent = 'Agora';
+                els.lastPing.textContent = data.last_ping_at ? `Último ping: ${data.last_ping_at}` : 'Agora';
 
                 // Tempo de resposta
                 els.responseTime.textContent = `${responseTime}ms`;

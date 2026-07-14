@@ -30,7 +30,7 @@ def api_status():
 
     now = datetime.now(timezone(timedelta(hours=-3)))
     accept_header = request.headers.get('Accept', '')
-    is_monitor_ping = request.args.get('source') == 'monitor' or 'application/json' not in accept_header
+    is_monitor_ping = request.args.get('source') == 'monitor' or request.args.get('monitor') == '1' or 'application/json' not in accept_header
 
     if is_monitor_ping:
         ping_count += 1
@@ -70,6 +70,7 @@ def api_status():
             'uptime_seconds': uptime_seconds,
             'ping_count': ping_count,
             'last_ping_timestamp': int(last_ping_timestamp.timestamp()) if last_ping_timestamp else None,
+            'last_ping_at': last_ping_timestamp.strftime('%d/%m/%Y %H:%M:%S') if last_ping_timestamp else None,
             'message': f"No dia {now.strftime('%d/%m/%Y')} foi registrado {hours} horas de rust"
         })
 
