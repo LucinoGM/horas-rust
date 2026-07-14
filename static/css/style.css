@@ -311,6 +311,10 @@ body {
         background: rgba(255, 68, 68, 0.1);
         border-color: rgba(255, 68, 68, 0.3);
         color: #ff4444;
+    }
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.3; transform: scale(1.5); }
 }
 
