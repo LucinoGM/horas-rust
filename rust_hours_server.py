@@ -88,12 +88,19 @@ def api_status():
 
         current_game_name = None
         current_game_hours = None
+        profile_name = None
+        profile_avatar = None
+        profile_state = None
         try:
             summary_url = f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={STEAM_API_KEY}&steamids={STEAM_ID}"
             summary_response = requests.get(summary_url, timeout=10)
             summary_data = summary_response.json()
             player = summary_data.get('response', {}).get('players', [None])[0]
             if player:
+                profile_name = player.get('personaname')
+                profile_avatar = player.get('avatarfull')
+                persona_state = player.get('personastate')
+                profile_state = 'Offline' if persona_state == 0 else 'Online'
                 current_game_name = player.get('gameextrainfo')
                 current_game_id = player.get('gameid')
                 if current_game_id:
@@ -109,6 +116,9 @@ def api_status():
         except Exception:
             current_game_name = None
             current_game_hours = None
+            profile_name = None
+            profile_avatar = None
+            profile_state = None
 
         minutes = rust_game.get('playtime_forever', 0)
         hours = minutes // 60
@@ -124,6 +134,9 @@ def api_status():
             'date': now.strftime("%d/%m/%Y"),
             'uptime_seconds': uptime_seconds,
             'ping_count': ping_count,
+            'profile_name': profile_name,
+            'profile_avatar': profile_avatar,
+            'profile_state': profile_state,
             'current_game': current_game_name,
             'current_game_hours': current_game_hours,
             'last_ping_timestamp': int(last_ping_timestamp.timestamp()) if last_ping_timestamp else None,

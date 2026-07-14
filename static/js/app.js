@@ -30,6 +30,10 @@ const els = {
     checks: document.getElementById('checks'),
     currentGame: document.getElementById('currentGame'),
     currentGameTime: document.getElementById('currentGameTime'),
+    profileAvatar: document.getElementById('profileAvatar'),
+    profileName: document.getElementById('profileName'),
+    profileState: document.getElementById('profileState'),
+    pingCount: document.getElementById('pingCount'),
     progressFill: document.getElementById('progressFill'),
     progressPercent: document.getElementById('progressPercent'),
     monitorBadge: document.getElementById('monitorBadge')
@@ -137,10 +141,25 @@ async function checkStatus() {
                 // Atualizar contadores
                 pingCount = typeof data.ping_count === 'number' ? data.ping_count : pingCount;
                 localStorage.setItem('rust_pingCount', pingCount);
+                els.pingCount.textContent = pingCount;
+
+                // Atualizar perfil Steam
+                els.profileAvatar.src = data.profile_avatar || 'https://via.placeholder.com/96?text=STEAM';
+                els.profileName.textContent = data.profile_name || 'Perfil Steam';
+                if (data.current_game) {
+                    els.profileState.textContent = `Jogando agora`;
+                } else {
+                    els.profileState.textContent = data.profile_state || 'Offline';
+                }
 
                 // Atualizar jogo atual
-                els.currentGame.textContent = data.current_game || 'Nenhum jogo ativo';
-                els.currentGameTime.textContent = data.current_game_hours !== null && data.current_game_hours !== undefined ? `${data.current_game_hours}h jogadas` : 'Nenhum tempo disponível';
+                if (data.current_game) {
+                    els.currentGame.textContent = data.current_game;
+                    els.currentGameTime.textContent = data.current_game_hours !== null && data.current_game_hours !== undefined ? `${data.current_game_hours}h jogadas` : 'Tempo de jogo indisponível';
+                } else {
+                    els.currentGame.textContent = data.profile_state ? `${data.profile_state}` : 'Offline';
+                    els.currentGameTime.textContent = data.profile_state === 'Online' ? 'Não está jogando nenhum jogo' : 'Offline no Steam';
+                }
 
                 // Atualizar último ping
                 if (typeof data.last_ping_timestamp === 'number') {

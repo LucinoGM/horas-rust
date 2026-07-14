@@ -85,6 +85,15 @@
                 </div>
             </div>
 
+            <!-- Perfil Steam -->
+            <div class="profile-card">
+                <img id="profileAvatar" class="profile-avatar" src="https://via.placeholder.com/96?text=STEAM" alt="Avatar Steam">
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Perfil Steam</div>
+                    <div class="profile-state" id="profileState">Status desconhecido</div>
+                </div>
+            </div>
+
             <!-- Horas do Rust -->
             <div class="rust-hours-display">
                 <div class="hours-label">⏱️ Horas de Rust</div>
@@ -119,17 +128,22 @@
                     <div class="info-label">Checks</div>
                     <div class="info-value" id="checks">--</div>
                 </div>
+                <div class="info-item">
+                    <div class="info-icon">📈</div>
+                    <div class="info-label">Pings</div>
+                    <div class="info-value" id="pingCount">--</div>
+                </div>
             </div>
         </div>
 
-        <!-- Ping Counter -->
+        <!-- Jogo Atual -->
         <div class="ping-section">
             <div class="ping-header">
-                <span class="ping-icon">📊</span>
-                <span class="ping-title">Total de Pings</span>
+                <span class="ping-icon">🎮</span>
+                <span class="ping-title">Jogo Atual</span>
             </div>
-            <div class="ping-count" id="pingCount">0</div>
-            <div class="ping-subtitle">Quanto mais pings, mais ativa a API!</div>
+            <div class="ping-count current-game" id="currentGame">--</div>
+            <div class="ping-subtitle" id="currentGameTime">Nenhum jogo ativo</div>
 
             <!-- Barra de progresso estilizada -->
             <div class="progress-container">
