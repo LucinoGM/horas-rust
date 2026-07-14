@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 API Horas Rust - Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <div class="container">
+        <!-- Logo SVG Artístico -->
+        <div class="logo-section">
+            <svg class="rust-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Círculo externo com gradiente -->
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b35"/>
+                        <stop offset="50%" style="stop-color:#f7931e"/>
+                        <stop offset="100%" style="stop-color:#ffcc00"/>
+                    </linearGradient>
+                    <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00d4ff"/>
+                        <stop offset="100%" style="stop-color:#7b2cbf"/>
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Engrenagem estilizada -->
+                <g class="gear" transform="translate(100,100)">
+                    <circle cx="0" cy="0" r="70" fill="none" stroke="url(#logoGrad)" stroke-width="4" filter="url(#glow)"/>
+                    <circle cx="0" cy="0" r="55" fill="none" stroke="url(#gearGrad)" stroke-width="2" opacity="0.6"/>
+
+                    <!-- Dentes da engrenagem -->
+                    <g class="gear-teeth">
+                        <rect x="-8" y="-85" width="16" height="20" rx="3" fill="url(#logoGrad)"/>
+                        <rect x="-8" y="65" width="16" height="20" rx="3" fill="url(#logoGrad)"/>
+                        <rect x="-85" y="-8" width="20" height="16" rx="3" fill="url(#logoGrad)"/>
+                        <rect x="65" y="-8" width="20" height="16" rx="3" fill="url(#logoGrad)"/>
+
+                        <rect x="-55" y="-65" width="14" height="18" rx="3" fill="url(#logoGrad)" transform="rotate(45)"/>
+                        <rect x="41" y="-65" width="14" height="18" rx="3" fill="url(#logoGrad)" transform="rotate(45)"/>
+                        <rect x="-55" y="47" width="14" height="18" rx="3" fill="url(#logoGrad)" transform="rotate(45)"/>
+                        <rect x="41" y="47" width="14" height="18" rx="3" fill="url(#logoGrad)" transform="rotate(45)"/>
+                    </g>
+
+                    <!-- Centro -->
+                    <circle cx="0" cy="0" r="25" fill="#0a0a0f" stroke="url(#gearGrad)" stroke-width="3"/>
+                    <text x="0" y="8" text-anchor="middle" fill="url(#logoGrad)" font-size="28" font-weight="bold" font-family="Arial">R</text>
+                </g>
+
+                <!-- Partículas flutuantes -->
+                <circle class="particle" cx="30" cy="40" r="3" fill="#ff6b35" opacity="0.6"/>
+                <circle class="particle" cx="170" cy="60" r="2" fill="#00d4ff" opacity="0.8"/>
+                <circle class="particle" cx="150" cy="150" r="4" fill="#7b2cbf" opacity="0.5"/>
+                <circle class="particle" cx="40" cy="160" r="2.5" fill="#ffcc00" opacity="0.7"/>
+            </svg>
+
+            <h1 class="title">
+                <span class="title-rust">RUST</span>
+                <span class="title-hours">HOURS</span>
+            </h1>
+            <p class="subtitle">Monitoramento em tempo real da API</p>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card">
+            <div class="status-header">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span class="status-text" id="statusText">Verificando...</span>
+                </div>
+                <div class="live-badge">
+                    <span class="live-pulse"></span>
+                    LIVE
+                </div>
+            </div>
+
+            <!-- Horas do Rust -->
+            <div class="rust-hours-display">
+                <div class="hours-label">⏱️ Horas de Rust</div>
+                <div class="hours-value" id="rustHours">--</div>
+                <div class="hours-date" id="rustDate">--</div>
+            </div>
+
+            <!-- Grid de Info -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">🔥</div>
+                    <div class="info-label">Uptime</div>
+                    <div class="info-value" id="uptime">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">📡</div>
+                    <div class="info-label">Último Ping</div>
+                    <div class="info-value" id="lastPing">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">⚡</div>
+                    <div class="info-label">Resposta</div>
+                    <div class="info-value" id="responseTime">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🔄</div>
+                    <div class="info-label">Checks</div>
+                    <div class="info-value" id="checks">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ping Counter -->
+        <div class="ping-section">
+            <div class="ping-header">
+                <span class="ping-icon">📊</span>
+                <span class="ping-title">Total de Pings</span>
+            </div>
+            <div class="ping-count" id="pingCount">0</div>
+            <div class="ping-subtitle">Quanto mais pings, mais ativa a API!</div>
+
+            <!-- Barra de progresso estilizada -->
+            <div class="progress-container">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-shine"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>Inativo</span>
+                    <span id="progressPercent">0%</span>
+                    <span>Super Ativo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="endpoints-section">
+            <h3>🔗 Endpoints da API</h3>
+            <div class="endpoint-item">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-url">/rust-hours</span>
+                <span class="endpoint-desc">Comando do StreamElements</span>
+            </div>
+            <div class="endpoint-item">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-url">/api/status</span>
+                <span class="endpoint-desc">Status em JSON</span>
+            </div>
+        </div>
+
+        <!-- Botão Refresh -->
+        <button class="refresh-btn" onclick="checkStatus()">
+            <span class="refresh-icon">🔄</span>
+            Atualizar Agora
+        </button>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>API: <a href="/rust-hours" target="_blank">/rust-hours</a> | Status: <a href="/api/status" target="_blank">/api/status</a></p>
+            <p class="footer-update">Atualiza automaticamente a cada 10 segundos</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
