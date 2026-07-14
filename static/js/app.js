@@ -25,11 +25,13 @@ const els = {
     rustDate: document.getElementById('rustDate'),
     uptime: document.getElementById('uptime'),
     lastPing: document.getElementById('lastPing'),
+    timeSinceLastPing: document.getElementById('timeSinceLastPing'),
     responseTime: document.getElementById('responseTime'),
     checks: document.getElementById('checks'),
     pingCount: document.getElementById('pingCount'),
     progressFill: document.getElementById('progressFill'),
-    progressPercent: document.getElementById('progressPercent')
+    progressPercent: document.getElementById('progressPercent'),
+    monitorBadge: document.getElementById('monitorBadge')
 };
 
 // ═══════════════════════════════════════════════
@@ -134,6 +136,9 @@ async function checkStatus() {
                 }
                 localStorage.setItem('rust_lastPing', lastPingTime);
                 els.lastPing.textContent = data.last_ping_at ? `Último ping: ${data.last_ping_at}` : 'Agora';
+                els.timeSinceLastPing.textContent = 'agora';
+                els.monitorBadge.className = 'live-badge active';
+                els.monitorBadge.innerHTML = '<span class="live-pulse"></span>MONITOR ATIVO';
 
                 // Tempo de resposta
                 els.responseTime.textContent = `${responseTime}ms`;
@@ -163,6 +168,7 @@ async function checkStatus() {
         els.responseTime.textContent = 'Timeout';
         els.responseTime.style.color = '#ff4444';
         els.lastPing.textContent = formatTimeAgo(lastPingTime);
+        els.timeSinceLastPing.textContent = lastPingTime ? formatTimeAgo(lastPingTime) : 'nunca';
     }
 
     // Incrementar contador de checks
@@ -186,7 +192,22 @@ function updateUptime() {
 // Atualizar "último ping" a cada segundo
 function updateLastPing() {
     if (lastPingTime) {
-        els.lastPing.textContent = formatTimeAgo(lastPingTime);
+        const ago = formatTimeAgo(lastPingTime);
+        els.lastPing.textContent = ago;
+        els.timeSinceLastPing.textContent = ago === 'Agora' ? 'agora' : ago;
+
+        const minutesSinceLastPing = Math.floor((Date.now() - lastPingTime) / 60000);
+        if (minutesSinceLastPing <= 10) {
+            els.monitorBadge.className = 'live-badge active';
+            els.monitorBadge.innerHTML = '<span class="live-pulse"></span>MONITOR ATIVO';
+        } else {
+            els.monitorBadge.className = 'live-badge inactive';
+            els.monitorBadge.innerHTML = '<span class="live-pulse"></span>MONITOR INATIVO';
+        }
+    } else {
+        els.timeSinceLastPing.textContent = 'nunca';
+        els.monitorBadge.className = 'live-badge inactive';
+        els.monitorBadge.innerHTML = '<span class="live-pulse"></span>MONITOR INATIVO';
     }
 }
 
