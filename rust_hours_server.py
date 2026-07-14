@@ -3,6 +3,17 @@ import requests
 import os
 from datetime import datetime, timezone, timedelta
 
+api_enabled = True
+
+
+def set_api_enabled(enabled):
+    global api_enabled
+    api_enabled = enabled
+
+
+def is_api_enabled():
+    return api_enabled
+
 app = Flask(__name__)
 
 # ═══════════════════════════════════════════════════════════
@@ -23,10 +34,29 @@ def home():
     """Página inicial com o site de status"""
     return render_template('index.html')
 
+@app.route('/api/toggle-status', methods=['GET', 'POST'])
+def toggle_status():
+    """Alterna o estado da API entre ligada e desligada."""
+    global api_enabled
+
+    api_enabled = not api_enabled
+    return jsonify({
+        'enabled': api_enabled,
+        'message': 'API ligada' if api_enabled else 'API desligada'
+    })
+
+
 @app.route('/api/status')
 def api_status():
     """Endpoint que retorna o status da API em JSON"""
     global ping_count, last_ping_timestamp
+
+    if not api_enabled:
+        return jsonify({
+            'online': False,
+            'enabled': False,
+            'error': 'API desligada manualmente.'
+        })
 
     now = datetime.now(timezone(timedelta(hours=-3)))
     accept_header = request.headers.get('Accept', '')
@@ -64,6 +94,7 @@ def api_status():
 
         return jsonify({
             'online': True,
+            'enabled': True,
             'hours': hours,
             'hours_formatted': f"{hours:,}".replace(",", "."),
             'date': now.strftime("%d/%m/%Y"),

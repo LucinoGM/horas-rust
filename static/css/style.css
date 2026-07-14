@@ -523,6 +523,50 @@ body {
     font-weight: 600;
 }
 
+.control-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.refresh-btn, .toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.refresh-btn:hover, .toggle-btn:hover {
+    transform: translateY(-2px);
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.25);
+}
+
+.toggle-btn {
+    background: linear-gradient(135deg, var(--rust-orange), var(--rust-gold));
+    color: #111;
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.25);
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, #00ff88, #00d4ff);
+    color: #07110f;
+}
+
 .endpoint-desc {
     color: #666;
     font-size: 0.85em;

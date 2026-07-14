@@ -160,11 +160,17 @@
             </div>
         </div>
 
-        <!-- Botão Refresh -->
-        <button class="refresh-btn" onclick="checkStatus()">
-            <span class="refresh-icon">🔄</span>
-            Atualizar Agora
-        </button>
+        <!-- Botões de controle -->
+        <div class="control-buttons">
+            <button class="refresh-btn" onclick="checkStatus()">
+                <span class="refresh-icon">🔄</span>
+                Atualizar Agora
+            </button>
+            <button class="toggle-btn" id="toggleApiBtn" onclick="toggleApiStatus()">
+                <span class="toggle-icon">⚡</span>
+                Desligar API
+            </button>
+        </div>
 
         <!-- Footer -->
         <div class="footer">

@@ -189,6 +189,39 @@ function updateUptime() {
     els.uptime.textContent = formatUptime(uptime);
 }
 
+async function toggleApiStatus() {
+    try {
+        const response = await fetch('/api/toggle-status', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error('Falha ao alternar API');
+        }
+
+        const data = await response.json();
+        const toggleBtn = document.getElementById('toggleApiBtn');
+        toggleBtn.textContent = data.enabled ? 'Desligar API' : 'Ligar API';
+        toggleBtn.classList.toggle('active', data.enabled);
+
+        const icon = data.enabled ? '⚡' : '🔌';
+        toggleBtn.innerHTML = `<span class="toggle-icon">${icon}</span>${data.enabled ? 'Desligar API' : 'Ligar API'}`;
+
+        if (!data.enabled) {
+            els.statusDot.className = 'status-dot offline';
+            els.statusText.className = 'status-text offline';
+            els.statusText.textContent = '🔌 API Desligada';
+            els.responseTime.textContent = 'Off';
+            els.responseTime.style.color = '#ffcc00';
+        } else {
+            checkStatus();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 // Atualizar "último ping" a cada segundo
 function updateLastPing() {
     if (lastPingTime) {
@@ -220,6 +253,12 @@ function init() {
     els.pingCount.textContent = pingCount;
     els.checks.textContent = checkCount;
     updateProgress();
+
+    const toggleBtn = document.getElementById('toggleApiBtn');
+    if (toggleBtn) {
+        toggleBtn.innerHTML = '<span class="toggle-icon">⚡</span>Desligar API';
+        toggleBtn.classList.add('active');
+    }
 
     // Primeira verificação
     checkStatus();
