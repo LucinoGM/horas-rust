@@ -86,6 +86,14 @@ function updateProgress() {
 // VERIFICAR STATUS
 // ═══════════════════════════════════════════════
 
+function setToggleButtonState(enabled) {
+    const toggleBtn = document.getElementById('toggleApiBtn');
+    if (!toggleBtn) return;
+
+    toggleBtn.classList.toggle('active', enabled);
+    toggleBtn.innerHTML = `<span class="toggle-icon">${enabled ? '⚡' : '🔌'}</span>${enabled ? 'Desligar API' : 'Ligar API'}`;
+}
+
 async function checkStatus() {
     // Estado de loading
     els.statusDot.className = 'status-dot loading';
@@ -114,6 +122,8 @@ async function checkStatus() {
             const data = await response.json();
 
             if (data.online) {
+                setToggleButtonState(true);
+
                 // API Online!
                 els.statusDot.className = 'status-dot online';
                 els.statusText.className = 'status-text online';
@@ -161,6 +171,8 @@ async function checkStatus() {
         }
 
     } catch (error) {
+        setToggleButtonState(false);
+
         // API Offline
         els.statusDot.className = 'status-dot offline';
         els.statusText.className = 'status-text offline';
@@ -201,12 +213,7 @@ async function toggleApiStatus() {
         }
 
         const data = await response.json();
-        const toggleBtn = document.getElementById('toggleApiBtn');
-        toggleBtn.textContent = data.enabled ? 'Desligar API' : 'Ligar API';
-        toggleBtn.classList.toggle('active', data.enabled);
-
-        const icon = data.enabled ? '⚡' : '🔌';
-        toggleBtn.innerHTML = `<span class="toggle-icon">${icon}</span>${data.enabled ? 'Desligar API' : 'Ligar API'}`;
+        setToggleButtonState(data.enabled);
 
         if (!data.enabled) {
             els.statusDot.className = 'status-dot offline';
