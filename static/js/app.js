@@ -117,12 +117,16 @@ async function checkStatus() {
                 els.rustDate.textContent = `Registrado em ${data.date}`;
 
                 // Atualizar contadores
-                pingCount = data.ping_count || pingCount + 1;
+                pingCount = typeof data.ping_count === 'number' ? data.ping_count : pingCount;
                 localStorage.setItem('rust_pingCount', pingCount);
                 els.pingCount.textContent = pingCount;
 
                 // Atualizar último ping
-                lastPingTime = Date.now();
+                if (typeof data.last_ping_timestamp === 'number') {
+                    lastPingTime = data.last_ping_timestamp * 1000;
+                } else {
+                    lastPingTime = Date.now();
+                }
                 localStorage.setItem('rust_lastPing', lastPingTime);
                 els.lastPing.textContent = 'Agora';
 

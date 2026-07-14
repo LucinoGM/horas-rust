@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import requests
 import os
 from datetime import datetime, timezone, timedelta
@@ -12,8 +12,9 @@ STEAM_API_KEY = "A53A2AEF21547138C92E69B702C5CE85"
 STEAM_ID = "76561199738179203"
 RUST_APPID = 252490
 
-# Contador de pings (simula o UptimeRobot localmente)
+# Contador de pings (conta apenas os pings enviados pelo monitor/externo)
 ping_count = 0
+last_ping_timestamp = None
 start_time = datetime.now(timezone(timedelta(hours=-3)))
 # ═══════════════════════════════════════════════════════════
 
@@ -25,7 +26,15 @@ def home():
 @app.route('/api/status')
 def api_status():
     """Endpoint que retorna o status da API em JSON"""
-    global ping_count
+    global ping_count, last_ping_timestamp
+
+    now = datetime.now(timezone(timedelta(hours=-3)))
+    accept_header = request.headers.get('Accept', '')
+    is_monitor_ping = request.args.get('source') == 'monitor' or 'application/json' not in accept_header
+
+    if is_monitor_ping:
+        ping_count += 1
+        last_ping_timestamp = now
 
     try:
         url = f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={STEAM_API_KEY}&steamid={STEAM_ID}&include_appinfo=true&format=json"
@@ -50,11 +59,7 @@ def api_status():
         minutes = rust_game.get('playtime_forever', 0)
         hours = minutes // 60
 
-        # Incrementar contador de pings
-        ping_count += 1
-
         # Calcular uptime
-        now = datetime.now(timezone(timedelta(hours=-3)))
         uptime_seconds = int((now - start_time).total_seconds())
 
         return jsonify({
@@ -64,6 +69,7 @@ def api_status():
             'date': now.strftime("%d/%m/%Y"),
             'uptime_seconds': uptime_seconds,
             'ping_count': ping_count,
+            'last_ping_timestamp': int(last_ping_timestamp.timestamp()) if last_ping_timestamp else None,
             'message': f"No dia {now.strftime('%d/%m/%Y')} foi registrado {hours} horas de rust"
         })
 
