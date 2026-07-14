@@ -7,12 +7,10 @@ app = Flask(__name__)
 
 # ═══════════════════════════════════════════════════════════
 # TROQUE AQUI: Cole sua Steam API Key (Passo 1 do tutorial)
-# Exemplo: STEAM_API_KEY = "A53A2AEF21547138C92E69B702C5CE85"
-STEAM_API_KEY = "COLE_SUA_API_KEY_AQUI"
+STEAM_API_KEY = "A53A2AEF21547138C92E69B702C5CE85"
 
 # TROQUE AQUI: Cole seu SteamID64 (Passo 2 do tutorial)
-# Exemplo: STEAM_ID = "76561199738179203"
-STEAM_ID = "COLE_SEU_STEAMID64_AQUI"
+STEAM_ID = "76561199738179203"
 # ═══════════════════════════════════════════════════════════
 
 RUST_APPID = 252490
