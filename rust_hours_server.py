@@ -42,6 +42,45 @@ def build_analytics_payload(steam_id, games, profile_name, profile_avatar, profi
         }
     ]
 
+    try:
+        friend_list_url = f"https://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={STEAM_API_KEY}&steamid={steam_id}&relationship=friend"
+        friend_response = requests.get(friend_list_url, timeout=10)
+        friend_data = friend_response.json()
+        friend_ids = [friend.get('steamid') for friend in friend_data.get('friendslist', {}).get('friends', []) if friend.get('steamid')]
+
+        if friend_ids:
+            summaries_url = f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={STEAM_API_KEY}&steamids={','.join(friend_ids)}"
+            summaries_response = requests.get(summaries_url, timeout=10)
+            summaries_data = summaries_response.json()
+            players = summaries_data.get('response', {}).get('players', [])
+
+            for player in players:
+                friend_id = player.get('steamid')
+                if not friend_id:
+                    continue
+
+                friend_games_url = f"https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={STEAM_API_KEY}&steamid={friend_id}&include_appinfo=true&format=json"
+                friend_games_response = requests.get(friend_games_url, timeout=10)
+                friend_games_data = friend_games_response.json()
+                friend_games = friend_games_data.get('response', {}).get('games', [])
+                friend_rust_game = None
+                for game in friend_games:
+                    if game.get('appid') == RUST_APPID:
+                        friend_rust_game = game
+                        break
+
+                friend_hours = max(0, (friend_rust_game.get('playtime_forever', 0) // 60) if friend_rust_game else 0)
+                ranking.append({
+                    'name': player.get('personaname') or f'Amigo {friend_id}',
+                    'avatar': player.get('avatarfull'),
+                    'hours': friend_hours,
+                    'status': 'Online' if player.get('personastate') else 'Offline'
+                })
+    except Exception:
+        pass
+
+    ranking = sorted(ranking, key=lambda item: item.get('hours', 0), reverse=True)[:8]
+
     calendar = []
     for offset in range(6, -1, -1):
         day = now - timedelta(days=offset)
