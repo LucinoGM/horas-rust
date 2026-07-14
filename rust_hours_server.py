@@ -86,6 +86,30 @@ def api_status():
                 'error': 'Rust nao encontrado na biblioteca Steam.'
             })
 
+        current_game_name = None
+        current_game_hours = None
+        try:
+            summary_url = f"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={STEAM_API_KEY}&steamids={STEAM_ID}"
+            summary_response = requests.get(summary_url, timeout=10)
+            summary_data = summary_response.json()
+            player = summary_data.get('response', {}).get('players', [None])[0]
+            if player:
+                current_game_name = player.get('gameextrainfo')
+                current_game_id = player.get('gameid')
+                if current_game_id:
+                    for game in games:
+                        if str(game.get('appid')) == str(current_game_id):
+                            current_game_hours = game.get('playtime_forever', 0) // 60
+                            break
+                if current_game_name and current_game_hours is None:
+                    for game in games:
+                        if game.get('name') == current_game_name:
+                            current_game_hours = game.get('playtime_forever', 0) // 60
+                            break
+        except Exception:
+            current_game_name = None
+            current_game_hours = None
+
         minutes = rust_game.get('playtime_forever', 0)
         hours = minutes // 60
 
@@ -100,6 +124,8 @@ def api_status():
             'date': now.strftime("%d/%m/%Y"),
             'uptime_seconds': uptime_seconds,
             'ping_count': ping_count,
+            'current_game': current_game_name,
+            'current_game_hours': current_game_hours,
             'last_ping_timestamp': int(last_ping_timestamp.timestamp()) if last_ping_timestamp else None,
             'last_ping_at': last_ping_timestamp.strftime('%d/%m/%Y %H:%M:%S') if last_ping_timestamp else None,
             'message': f"No dia {now.strftime('%d/%m/%Y')} foi registrado {hours} horas de rust"

@@ -28,7 +28,8 @@ const els = {
     timeSinceLastPing: document.getElementById('timeSinceLastPing'),
     responseTime: document.getElementById('responseTime'),
     checks: document.getElementById('checks'),
-    pingCount: document.getElementById('pingCount'),
+    currentGame: document.getElementById('currentGame'),
+    currentGameTime: document.getElementById('currentGameTime'),
     progressFill: document.getElementById('progressFill'),
     progressPercent: document.getElementById('progressPercent'),
     monitorBadge: document.getElementById('monitorBadge')
@@ -136,7 +137,10 @@ async function checkStatus() {
                 // Atualizar contadores
                 pingCount = typeof data.ping_count === 'number' ? data.ping_count : pingCount;
                 localStorage.setItem('rust_pingCount', pingCount);
-                els.pingCount.textContent = pingCount;
+
+                // Atualizar jogo atual
+                els.currentGame.textContent = data.current_game || 'Nenhum jogo ativo';
+                els.currentGameTime.textContent = data.current_game_hours !== null && data.current_game_hours !== undefined ? `${data.current_game_hours}h jogadas` : 'Nenhum tempo disponível';
 
                 // Atualizar último ping
                 if (typeof data.last_ping_timestamp === 'number') {
